@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Phòng &amp; Thiết bị</title>
+<meta name="description" content="Prototype trang quản trị (Admin) - Hệ thống Quản lý Phòng học & Thiết bị - Nhóm 2 RE">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: admin console — dark icon sidebar + sticky top bar + card grid work area; sidebar collapses to a top strip under 860px */
+:root{
+  --bg:#fff6f9; --panel:#ffffff; --panel2:#fff0f5; --ink:#2b1d24; --muted:#8a6f7b; --line:#f6dce6;
+  --accent:#d6457f; --accent-ink:#ffffff; --accent-soft:#ffe3ee;
+  --c2:#e0912f; --c2-soft:#fff1de; --c3:#8b6fd6; --c3-soft:#efe9fc; --c4:#d94a4a; --c4-soft:#fde6e6;
+  --ok:#2f9a62; --ok-soft:#e3f6ec;
+  --side:#ffffff; --side2:#ffeef4; --side-ink:#3a2530; --side-mute:#b08a9b;
+  --shadow:0 1px 2px rgba(214,69,127,.05),0 6px 18px rgba(214,69,127,.07);
+  --f-ui:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+html,body{height:100%}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.app{display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100%}
+aside{background:var(--side);border-right:1px solid var(--line);color:var(--side-ink);padding-block:18px;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:.02em}
+.brand b{font-size:14px;line-height:1.2;display:block}
+.brand small{color:var(--side-mute);font-size:11.5px}
+.navlabel{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--side-mute);padding:0 10px;margin-bottom:6px}
+nav{display:flex;flex-direction:column;gap:3px}
+nav a{display:flex;gap:11px;align-items:center;color:var(--side-ink);text-decoration:none;padding:10px 10px;border-radius:9px;font-weight:500;font-size:13.5px;opacity:.85}
+nav a .ua{margin-left:auto;font-family:var(--f-mono);font-size:10.5px;color:var(--side-mute);background:var(--side2);padding:1px 6px;border-radius:4px}
+nav a:hover{background:var(--side2);opacity:1}
+nav a[aria-current="page"]{background:var(--accent);color:var(--accent-ink);opacity:1;box-shadow:0 4px 14px rgba(214,69,127,.30)}
+nav a[aria-current="page"] .ua{background:rgba(255,255,255,.25);color:var(--accent-ink)}
+.sidefoot{margin-top:auto;background:var(--side2);border-radius:10px;padding:12px;font-size:12px;color:var(--side-mute)}
+.sidefoot b{color:var(--side-ink);display:block;font-size:12.5px;margin-bottom:2px}
+
+.work{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center;padding-block:12px;padding-left:28px;padding-right:max(28px,env(safe-area-inset-right,0px))}
+.crumb{font-size:13px;color:var(--muted);white-space:nowrap}
+.crumb b{color:var(--ink);font-weight:600}
+.gsearch{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 12px;width:min(320px,40%);color:var(--muted)}
+.gsearch input{border:0;background:none;outline:none;min-width:0;width:100%}
+.iconbtn{position:relative;border:1px solid var(--line);background:var(--panel);border-radius:9px;width:38px;height:38px;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+.iconbtn .dot{position:absolute;top:-5px;right:-5px;background:var(--c4);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px}
+.me{display:flex;gap:10px;align-items:center}
+.av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12.5px;background:var(--accent-soft);color:var(--accent);flex:none}
+.me div{line-height:1.25;font-size:12.5px}
+.me div b{display:block;font-size:13px}
+.me div span{color:var(--muted)}
+main{padding-block:24px 48px;padding-left:28px;padding-right:max(28px,env(safe-area-inset-right,0px))}
+
+.head{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:500}
+h1{font-size:24px;margin:2px 0 0;text-wrap:balance;font-weight:800;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:4px 0 0;max-width:70ch}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 14px;cursor:pointer;font-weight:600;display:inline-flex;gap:7px;align-items:center;font-size:13.5px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+a.btn{text-decoration:none;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 4px 12px rgba(214,69,127,.25)}
+.btn.primary:hover{filter:brightness(1.05);color:var(--accent-ink)}
+.btn.danger{color:var(--c4);border-color:var(--c4-soft);background:var(--c4-soft)}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:7px}
+.btn svg.i{width:16px;height:16px}
+.btn:focus-visible,input:focus-visible,select:focus-visible,nav a:focus-visible,.tab:focus-visible,.iconbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.cardh{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:16px 18px 0;flex-wrap:wrap}
+.cardh h3{margin:0;font-size:15px;font-weight:700}
+.cardh .muted{font-size:12.5px}
+.cardb{padding:14px 18px 18px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.toolbar .search{flex:1 1 240px;display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 12px;color:var(--muted)}
+.toolbar .search input{border:0;background:none;outline:none;width:100%;min-width:0}
+select,.field input{border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:8px 10px;min-width:0}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:660px}
+th,td{text-align:left;padding:12px 18px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;background:var(--panel2)}
+tbody tr:hover{background:var(--panel2)}
+tr:last-child td{border-bottom:0}
+.person{display:flex;gap:10px;align-items:center}
+.person .meta{line-height:1.3}
+.mono{font-family:var(--f-mono);font-size:12.5px}
+.muted{color:var(--muted)}
+.chip{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--accent-soft);color:var(--accent);margin:2px 3px 2px 0;white-space:nowrap}
+.chip.c2{background:var(--c2-soft);color:var(--c2)}.chip.c3{background:var(--c3-soft);color:var(--c3)}.chip.c4{background:var(--c4-soft);color:var(--c4)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.warn{background:var(--c2-soft);color:var(--c2)}.pill.bad{background:var(--c4-soft);color:var(--c4)}
+.tabs{display:flex;gap:4px;padding:0 18px;border-bottom:1px solid var(--line)}
+.tab{border:0;background:none;padding:12px 12px;cursor:pointer;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--accent);border-color:var(--accent)}
+.stack{display:flex;flex-direction:column;gap:18px}
+.rule{font-size:12.5px;color:var(--muted);display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:var(--panel);border:1px dashed var(--line);border-radius:10px;margin-top:16px}
+.rule svg.i{color:var(--accent);margin-top:1px}
+.rule b{color:var(--ink);font-weight:600}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-weight:600;font-size:13px}
+.field .hint{font-size:12px;color:var(--muted)}
+.field .err{font-size:12px;color:var(--c4)}
+.unit{display:flex;gap:8px;align-items:center}
+.unit input{width:120px;font-variant-numeric:tabular-nums}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;padding:18px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;padding:14px 18px;border-top:1px solid var(--line)}
+
+/* dashboard */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:18px}
+.kpi{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.kpi .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.kpi .ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center}
+.kpi .n{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.02em}
+.kpi .l{color:var(--muted);font-size:12.5px;font-weight:500}
+.kpi .d{font-size:12px;font-weight:600}
+.up{color:var(--ok)}.down{color:var(--c4)}
+.t1 .ic{background:var(--accent-soft);color:var(--accent)}.t2 .ic{background:var(--c2-soft);color:var(--c2)}.t3 .ic{background:var(--c3-soft);color:var(--c3)}.t4 .ic{background:var(--c4-soft);color:var(--c4)}
+.dgrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+.dgrid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.legend div{display:flex;align-items:center;gap:10px;font-size:13px}
+.legend i{width:10px;height:10px;border-radius:3px;flex:none}
+.legend span{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+.alert{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.alert:last-child{border-bottom:0;padding-bottom:0}
+.alert .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}
+.alert b{display:block;font-size:13.5px}
+.alert small{color:var(--muted);font-size:12px}
+.hbar{display:flex;flex-direction:column;gap:12px}
+.hbar .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:13px}
+.hbar .track{grid-column:1/-1;height:8px;border-radius:99px;background:var(--panel2);overflow:hidden}
+.hbar .fill{height:100%;border-radius:99px;background:var(--c3)}
+.hbar b{font-variant-numeric:tabular-nums}
+
+.overlay{position:fixed;inset:0;background:rgba(60,20,40,.35);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.dialog{background:var(--panel);border-radius:14px;border:1px solid var(--line);width:min(460px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.dialog header{padding:18px 20px 6px;font-weight:700;font-size:16px}
+.dialog .body{padding:6px 20px 16px;display:flex;flex-direction:column;gap:10px}
+.check{display:flex;gap:10px;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:9px;cursor:pointer}
+.check:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.toast{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:10px;max-width:min(420px,calc(100% - 32px));z-index:30;box-shadow:0 10px 30px rgba(0,0,0,.3);font-weight:500}
+.login{min-height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#ffe3ee,#fff6f9);padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.login .card{width:min(420px,100%);padding:30px;display:flex;flex-direction:column;gap:14px}
+.proto{font-size:12px;color:var(--muted);margin-bottom:14px;display:flex;gap:8px;align-items:center}
+.proto::before{content:"PROTOTYPE";font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;background:var(--c2-soft);color:var(--c2);padding:2px 7px;border-radius:5px;font-weight:600}
+.importbox{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:18px}
+.importbox .ic{width:46px;height:46px;border-radius:12px;background:var(--c3-soft);color:var(--c3);display:grid;place-items:center;flex:none}
+.importbox .txt{flex:1 1 260px;min-width:0}
+.result{padding:14px 18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.mgr{padding:18px;display:flex;flex-direction:column;gap:14px}
+.mgr .top2{display:flex;gap:12px;align-items:center}
+.mgr .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+
+@media (max-width:1100px){.dgrid,.dgrid3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  aside{position:static;height:auto;padding-block:12px;padding-right:max(14px,env(safe-area-inset-right,0px));gap:10px}
+  .navlabel,.sidefoot{display:none}
+  nav{flex-direction:row;overflow-x:auto;gap:4px}
+  nav a{white-space:nowrap}
+  nav a .ua{display:none}
+  .top{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:static}
+  .gsearch,.me div,.crumb{display:none}
+  .top .me{margin-left:auto}
+  main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+@media (prefers-reduced-motion:no-preference){.toast{animation:in .18s ease-out}@keyframes in{from{transform:translateY(8px);opacity:0}}}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+<div id="loginView" class="login" hidden>
+  <div class="card">
+    <div class="logo">PH</div>
+    <div class="eyebrow">Bước 1 · Đăng nhập</div>
+    <h1 style="font-size:21px">Hệ thống Quản lý Phòng học &amp; Thiết bị</h1>
+    <p class="sub">Đăng nhập bằng tài khoản email trường để vào trang quản trị. Chỉ tài khoản có vai trò Admin mới truy cập được.</p>
+    <button class="btn primary" id="btnLogin" type="button" style="justify-content:center">Đăng nhập bằng tài khoản email trường</button>
+    <p class="muted" style="font-size:12px;margin:0">Bản prototype: bấm nút để vào thẳng, không nhập mật khẩu.</p>
+  </div>
+</div>
+
+<div id="appView" class="app">
+  <aside>
+    <div class="brand"><div class="logo">PH</div><div><b>Phòng học &amp; Thiết bị</b><small>Trang quản trị</small></div></div>
+    <div><div class="navlabel">Quản trị hệ thống</div>
+    <nav id="nav"></nav></div>
+    <div class="sidefoot"><b>Học kỳ 1 · 2026-2027</b>Dữ liệu danh mục cập nhật 23/10/2026</div>
+  </aside>
+  <div class="work">
+    <div class="top">
+      <div class="crumb">Quản trị / <b id="crumb">Dashboard</b></div>
+      <label class="gsearch" for="gq"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="gq" type="search" placeholder="Tìm tài khoản, phòng, thiết bị…"></label>
+      <button class="iconbtn" id="btnBell" type="button" aria-label="Thông báo"><svg class="i" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="dot">4</span></button>
+      <div class="me"><div class="av">VL</div><div><b>Vũ Tuấn Linh</b><span>Admin</span></div><button class="iconbtn" id="btnLogout" type="button" aria-label="Đăng xuất"><svg class="i" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></div>
+    </div>
+    <main id="main"></main>
+  </div>
+</div>
+<div id="layer"></div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const P={
+ users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ grid:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+ ucheck:'<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>',
+ sliders:'<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+ chart:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+ search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+ home:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+ tool:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+ alert:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+ box:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+ upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+ download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+ refresh:'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+ plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+ file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+ info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+ save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>'
+};
+const ic=(n,extra="")=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true" ${extra}>${P[n]}</svg>`;
+const ROLES=["Sinh viên","Giảng viên","Người quản lý phòng","Phòng CSVC","Kỹ thuật","Admin"];
+const RCLS={"Sinh viên":"","Giảng viên":"c3","Người quản lý phòng":"c2","Phòng CSVC":"c3","Kỹ thuật":"c4","Admin":"c2"};
+const now=()=>{const d=new Date();const p=n=>String(n).padStart(2,"0");return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`};
+const initials=n=>n.split(" ").filter(Boolean).slice(-2).map(w=>w[0]).join("").toUpperCase();
+
+const S={
+ accounts:[
+  {id:"2474802010377",name:"Nguyễn Đình Thuần",email:"thuan.2474802010377@vanlanguni.vn",khoa:"Khoa CNTT",roles:["Sinh viên"],active:true},
+  {id:"GV0412",name:"Lê Gia Hiếu",email:"hieu.lg@vlu.edu.vn",khoa:"Khoa CNTT",roles:["Giảng viên"],active:true},
+  {id:"NV1021",name:"Phạm Thu Trang",email:"trang.pt@vlu.edu.vn",khoa:"Phòng Đào tạo",roles:["Người quản lý phòng"],active:true},
+  {id:"NV1187",name:"Đỗ Minh Khang",email:"khang.dm@vlu.edu.vn",khoa:"TT Hỗ trợ Sinh viên",roles:["Người quản lý phòng"],active:true},
+  {id:"NV1203",name:"Hồ Ngọc Mai",email:"mai.hn@vlu.edu.vn",khoa:"Phòng CSVC",roles:["Người quản lý phòng"],active:true},
+  {id:"NV0950",name:"Trần Khánh Hưng",email:"hung.tk@vlu.edu.vn",khoa:"Phòng CSVC",roles:["Phòng CSVC"],active:true},
+  {id:"NV0961",name:"Nguyễn Dương Quốc Bảo",email:"bao.ndq@vlu.edu.vn",khoa:"Phòng CSVC",roles:["Kỹ thuật"],active:true},
+  {id:"2474802010157",name:"Trần Văn Lộc",email:"loc.2474802010157@vanlanguni.vn",khoa:"Khoa Quản trị KD",roles:["Sinh viên"],active:false}
+ ],
+ rooms:[
+  {code:"J.04.12",type:"Phòng học",cap:60,status:"Hoạt động"},
+  {code:"J.04.15",type:"Phòng học",cap:45,status:"Đang bảo trì"},
+  {code:"F.02.01",type:"Hội trường",cap:300,status:"Hoạt động"},
+  {code:"A.07.03",type:"Phòng họp",cap:20,status:"Hoạt động"},
+  {code:"J.10.08",type:"Phòng học",cap:80,status:"Ngưng sử dụng"}
+ ],
+ devices:[
+  {code:"TB-OD-001",name:"Ổ điện 6 lỗ dài 5m",place:"Kho CSVC tòa F",qty:24,avail:17,status:"Hoạt động"},
+  {code:"TB-HUB-002",name:"Hub USB-C sang HDMI",place:"Kho CSVC tòa J",qty:15,avail:9,status:"Hoạt động"},
+  {code:"TB-HDMI-003",name:"Dây HDMI 5m",place:"Kho CSVC tòa J",qty:20,avail:20,status:"Hoạt động"},
+  {code:"TB-RM-004",name:"Remote máy chiếu",place:"Kho CSVC tòa F",qty:30,avail:26,status:"Hoạt động"}
+ ],
+ assign:{"Phòng học":{main:"NV1021",backup:""},"Hội trường":{main:"NV1187",backup:""},"Phòng họp":{main:"NV1203",backup:""}},
+ rules:{maxDev:3,loanHours:4,remindMin:10,extendMin:60},
+ log:[
+  {t:"23/10/2026 09:41",who:"Nguyễn Dương Quốc Bảo",type:"Sự cố",what:"Cập nhật phiếu SC-0087 sang \"Đang sửa\""},
+  {t:"23/10/2026 09:05",who:"Phạm Thu Trang",type:"Duyệt phòng",what:"Duyệt yêu cầu mượn phòng J.04.12 (dạy bù môn RE)"},
+  {t:"23/10/2026 08:20",who:"Vũ Tuấn Linh",type:"Danh mục",what:"Import 46 phòng từ file danh_muc_HK1.xlsx"},
+  {t:"23/10/2026 08:12",who:"Vũ Tuấn Linh",type:"Tài khoản",what:"Đồng bộ 312 tài khoản từ hệ thống email trường"}
+ ],
+ tab:"rooms",q:"",roleF:"",logF:"Tất cả"
+};
+const addLog=(type,what)=>S.log.unshift({t:now(),who:"Vũ Tuấn Linh",type,what});
+
+let toastT;
+function toast(msg){const l=$("#layer");l.querySelector(".toast")?.remove();const d=document.createElement("div");d.className="toast";d.setAttribute("role","status");d.textContent=msg;l.appendChild(d);clearTimeout(toastT);toastT=setTimeout(()=>d.remove(),3800)}
+function dialog(title,bodyHTML,okText,onOk,danger){
+ const l=$("#layer");const o=document.createElement("div");o.className="overlay";
+ o.innerHTML=`<div class="dialog" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header>${esc(title)}</header><div class="body">${bodyHTML}<p id="dlgErr" style="color:var(--c4);font-size:12.5px;margin:0" hidden></p></div><div class="actions"><button class="btn" type="button" data-x>Hủy</button><button class="btn ${danger?"danger":"primary"}" type="button" data-ok>${esc(okText)}</button></div></div>`;
+ l.appendChild(o);const close=()=>o.remove();
+ o.querySelector("[data-x]").onclick=close;o.addEventListener("click",e=>{if(e.target===o)close()});
+ o.querySelector("[data-ok]").onclick=()=>{const r=onOk(o);if(r){const e=o.querySelector("#dlgErr");e.textContent=r;e.hidden=false}else close()};
+ o.querySelector("[data-ok]").focus();
+}
+const pill=s=>`<span class="pill ${s==="Hoạt động"?"ok":s==="Đang bảo trì"?"warn":"bad"}">${esc(s)}</span>`;
+const head=(ua,title,sub,right="")=>`<div class="proto">Dữ liệu mẫu, thao tác chỉ lưu tạm trong trang này.</div><div class="head"><div><div class="eyebrow">${ua}</div><h1>${title}</h1><p class="sub">${sub}</p></div><div style="display:flex;gap:8px;flex-wrap:wrap">${right}</div></div>`;
+const rule=html=>`<div class="rule">${ic("info")}<div>${html}</div></div>`;
+
+/* ---------- UA5 · Dashboard ---------- */
+function spark(vals,col){const w=90,h=28,mx=Math.max(...vals),mn=Math.min(...vals);const pts=vals.map((v,i)=>`${(i/(vals.length-1)*w).toFixed(1)},${(h-3-(v-mn)/(mx-mn||1)*(h-6)).toFixed(1)}`).join(" ");return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+function vDash(){
+ const lent=S.devices.reduce((s,d)=>s+d.qty-d.avail,0);
+ const weeks=[54,61,58,66,72,70,79,84];
+ const W=620,H=230,pl=40,pr=16,pt=16,pb=30;
+ const X=i=>pl+i*(W-pl-pr)/(weeks.length-1), Y=v=>pt+(H-pt-pb)*(1-v/100);
+ const line=weeks.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+ const area=`${X(0)},${Y(0)} ${line} ${X(weeks.length-1)},${Y(0)}`;
+ const prev=[48,52,55,57,60,63,65,69];
+ const prevLine=prev.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+ const usage=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tỷ lệ sử dụng phòng học theo tuần">
+  <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+  ${[0,25,50,75,100].map(t=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--line)"/><text x="${pl-8}" y="${Y(t)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${t}%</text>`).join("")}
+  ${weeks.map((v,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">T${i+1}</text>`).join("")}
+  <polyline points="${prevLine}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/>
+  <polygon points="${area}" fill="url(#ga)"/>
+  <polyline points="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+  ${weeks.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="${i===weeks.length-1?5:3}" fill="${i===weeks.length-1?"var(--accent)":"var(--panel)"}" stroke="var(--accent)" stroke-width="2"/>`).join("")}
+  <rect x="${X(7)-26}" y="${Y(84)-30}" width="52" height="20" rx="6" fill="var(--ink)"/><text x="${X(7)}" y="${Y(84)-16}" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--panel)">84%</text></svg>`;
+ const parts=[["Phòng học",128,"var(--accent)"],["Phòng họp",41,"var(--c3)"],["Hội trường",23,"var(--c2)"]];
+ const tot=parts.reduce((s,p)=>s+p[1],0);let acc=0;const R=62,C=2*Math.PI*R;
+ const donut=`<svg viewBox="0 0 180 180" role="img" aria-label="Yêu cầu mượn phòng theo loại" style="max-width:190px;margin:0 auto">
+  <circle cx="90" cy="90" r="${R}" fill="none" stroke="var(--panel2)" stroke-width="22"/>
+  ${parts.map(([n,v,c])=>{const len=v/tot*C;const s=`<circle cx="90" cy="90" r="${R}" fill="none" stroke="${c}" stroke-width="22" stroke-dasharray="${(len-2).toFixed(1)} ${(C-len+2).toFixed(1)}" stroke-dashoffset="${(-acc).toFixed(1)}" transform="rotate(-90 90 90)"/>`;acc+=len;return s}).join("")}
+  <text x="90" y="88" text-anchor="middle" font-size="26" font-weight="800" fill="var(--ink)">${tot}</text><text x="90" y="108" text-anchor="middle" font-size="11" fill="var(--muted)">yêu cầu tháng 10</text></svg>`;
+ const topDev=[["Ổ điện 6 lỗ",142],["Hub USB-C sang HDMI",96],["Dây HDMI 5m",61],["Remote máy chiếu",38]];
+ const types=["Tất cả",...new Set(S.log.map(l=>l.type))];
+ const logs=S.log.filter(l=>S.logF==="Tất cả"||l.type===S.logF).slice(0,8);
+ return head("UA5 · Theo dõi hoạt động & báo cáo thống kê","Dashboard","Tình hình sử dụng phòng và thiết bị hôm nay, thứ Sáu 23/10/2026.",
+  `<a class="btn" href="#bao-cao-xuat" id="goExport">${ic("download")}Xuất báo cáo</a>`)+
+ `<div class="kpis">
+  <div class="card kpi t2"><div class="row"><div><div class="l">Yêu cầu phòng chờ duyệt</div><div class="n">14</div></div><div class="ic">${ic("clock")}</div></div><div class="row"><span class="d down">3 chờ quá 24 giờ</span>${spark([9,11,8,12,10,13,14],"var(--c2)")}</div></div>
+  <div class="card kpi t1"><div class="row"><div><div class="l">Phòng đang sử dụng</div><div class="n">38<span class="muted" style="font-size:15px;font-weight:600"> / 212</span></div></div><div class="ic">${ic("home")}</div></div><div class="row"><span class="d up">▲ 6% so với tuần trước</span>${spark([28,31,30,34,33,36,38],"var(--accent)")}</div></div>
+  <div class="card kpi t3"><div class="row"><div><div class="l">Thiết bị đang cho mượn</div><div class="n">${lent}</div></div><div class="ic">${ic("box")}</div></div><div class="row"><span class="d down">2 quá hạn trả</span>${spark([12,15,14,18,16,19,lent],"var(--c3)")}</div></div>
+  <div class="card kpi t4"><div class="row"><div><div class="l">Sự cố đang mở</div><div class="n">5</div></div><div class="ic">${ic("tool")}</div></div><div class="row"><span class="d up">▼ 2 so với hôm qua</span>${spark([9,8,8,7,7,7,5],"var(--c4)")}</div></div>
+ </div>
+ <div class="dgrid">
+  <div class="card chart"><div class="cardh"><div><h3>Tỷ lệ sử dụng phòng học theo tuần</h3><span class="muted">Học kỳ 1, 2026-2027 · nét đứt: cùng kỳ năm trước</span></div><span class="chip">+15 điểm so với cùng kỳ</span></div><div class="cardb">${usage}</div></div>
+  <div class="card chart"><div class="cardh"><h3>Yêu cầu theo loại phòng</h3></div><div class="cardb">${donut}<div class="legend">${parts.map(([n,v,c])=>`<div><i style="background:${c}"></i>${n}<span>${v} · ${Math.round(v/tot*100)}%</span></div>`).join("")}</div></div></div>
+ </div>
+ <div class="dgrid3">
+  <div class="card"><div class="cardh"><h3>Cần chú ý</h3><span class="chip c4">4 việc</span></div><div class="cardb">
+   <div class="alert"><div class="ic" style="background:var(--c4-soft);color:var(--c4)">${ic("alert")}</div><div><b>Sự cố SC-0091 · phòng J.04.15</b><small>Máy chiếu hỏng, phòng đang có lớp · chưa có kỹ thuật nhận</small></div></div>
+   <div class="alert"><div class="ic" style="background:var(--c2-soft);color:var(--c2)">${ic("clock")}</div><div><b>3 yêu cầu phòng học chờ quá 24 giờ</b><small>Người duyệt: Phạm Thu Trang · chưa gán người dự phòng</small></div></div>
+   <div class="alert"><div class="ic" style="background:var(--c3-soft);color:var(--c3)">${ic("box")}</div><div><b>2 thiết bị quá hạn trả</b><small>TB-OD-001, TB-HUB-002 · quá 3 giờ</small></div></div>
+   <div class="alert"><div class="ic" style="background:var(--accent-soft);color:var(--accent)">${ic("users")}</div><div><b>1 tài khoản đã khóa vẫn còn lịch đặt</b><small>Trần Văn Lộc · lịch phòng J.04.12 ngày 28/10</small></div></div>
+  </div></div>
+  <div class="card"><div class="cardh"><h3>Thiết bị được mượn nhiều nhất</h3><span class="muted">tháng 10</span></div><div class="cardb hbar">
+   ${topDev.map(([n,v])=>`<div class="r"><span>${n}</span><b>${v} lượt</b><div class="track"><div class="fill" style="width:${v/topDev[0][1]*100}%"></div></div></div>`).join("")}
+  </div></div>
+  <div class="card"><div class="cardh"><h3>Tình trạng danh mục</h3><a class="muted" href="#danh-muc" style="font-size:12.5px">Xem danh mục</a></div><div class="cardb hbar">
+   ${[["Phòng hoạt động",206,212,"var(--accent)"],["Phòng đang bảo trì",4,212,"var(--c2)"],["Phòng ngưng sử dụng",2,212,"var(--c4)"],["Thiết bị khả dụng",S.devices.reduce((s,d)=>s+d.avail,0),S.devices.reduce((s,d)=>s+d.qty,0),"var(--c3)"]].map(([n,v,t,c])=>`<div class="r"><span>${n}</span><b>${v}/${t}</b><div class="track"><div class="fill" style="width:${Math.max(2,v/t*100)}%;background:${c}"></div></div></div>`).join("")}
+  </div></div>
+ </div>
+ <div class="dgrid" id="bao-cao-xuat">
+  <div class="card"><div class="cardh"><div><h3>Nhật ký hoạt động</h3><span class="muted">Chỉ xem, không sửa hoặc xóa được</span></div><select id="logF" aria-label="Lọc loại thao tác">${types.map(t=>`<option ${S.logF===t?"selected":""}>${t}</option>`).join("")}</select></div>
+   <div class="scroll" style="margin-top:12px"><table style="min-width:560px"><thead><tr><th>Thời gian</th><th>Người thực hiện</th><th>Nội dung</th></tr></thead><tbody>
+   ${logs.map(l=>`<tr><td class="mono" style="white-space:nowrap">${esc(l.t)}</td><td><div class="person"><div class="av" style="width:28px;height:28px;font-size:11px">${initials(l.who)}</div><div class="meta">${esc(l.who)}<br><span class="chip" style="margin:2px 0 0">${esc(l.type)}</span></div></div></td><td>${esc(l.what)}</td></tr>`).join("")}
+   </tbody></table></div></div>
+  <form class="card" id="expForm" novalidate><div class="cardh"><h3>Xuất báo cáo</h3></div><div class="form" style="grid-template-columns:1fr">
+   <div class="field"><label for="xType">Loại báo cáo</label><select id="xType"><option>Tần suất sử dụng phòng</option><option>Thiết bị hay hỏng</option><option>Sự cố và thời gian xử lý</option><option>Mượn - trả thiết bị</option></select></div>
+   <div class="field"><label for="xFrom">Từ ngày</label><input id="xFrom" type="date" value="2026-09-07"></div>
+   <div class="field"><label for="xTo">Đến ngày</label><input id="xTo" type="date" value="2026-10-23"><span class="err" id="xErr"></span></div></div>
+   <div class="actions"><button class="btn" type="submit" data-f="PDF">${ic("file")}PDF</button><button class="btn primary" type="submit" data-f="Excel">${ic("download")}Excel</button></div></form>
+ </div>`;
+}
+function bindDash(){
+ $("#logF").onchange=e=>{S.logF=e.target.value;render()};
+ $("#goExport").onclick=e=>{e.preventDefault();$("#bao-cao-xuat").scrollIntoView({behavior:"smooth"})};
+ $("#expForm").onsubmit=e=>{
+  e.preventDefault();const f=e.submitter?.dataset.f||"Excel";const a=$("#xFrom").value,b=$("#xTo").value;
+  if(!a||!b||a>b){$("#xErr").textContent="Chọn khoảng thời gian hợp lệ (từ ngày trước đến ngày).";return}
+  addLog("Báo cáo",`Xuất báo cáo "${$("#xType").value}" (${f})`);render();toast(`Đã tạo báo cáo ${f}. Bản chính thức sẽ tải file về máy.`);
+ };
+}
+
+/* ---------- UA1 ---------- */
+function vAccounts(){
+ const list=S.accounts.filter(a=>(!S.q||(a.name+a.email+a.id).toLowerCase().includes(S.q.toLowerCase()))&&(!S.roleF||a.roles.includes(S.roleF)));
+ const cnt=r=>S.accounts.filter(a=>a.roles.includes(r)).length;
+ return head("UA1 · Quản lý tài khoản & phân quyền","Tài khoản & phân quyền","Tài khoản lấy từ email trường. Gán vai trò để mỗi người chỉ thấy đúng chức năng của mình.",
+  `<button class="btn primary" id="btnSync" type="button">${ic("refresh")}Đồng bộ tài khoản trường</button>`)+
+ `<div class="kpis">${[["Tổng tài khoản",S.accounts.length,"t1","users"],["Giảng viên",cnt("Giảng viên"),"t3","ucheck"],["Người quản lý phòng",cnt("Người quản lý phòng"),"t2","ucheck"],["Đã khóa",S.accounts.filter(a=>!a.active).length,"t4","alert"]].map(([l,n,t,i])=>`<div class="card kpi ${t}"><div class="row"><div><div class="l">${l}</div><div class="n">${n}</div></div><div class="ic">${ic(i)}</div></div></div>`).join("")}</div>
+ <div class="card"><div class="toolbar"><label class="search" for="q">${ic("search")}<input id="q" type="search" placeholder="Tìm theo họ tên, email, mã SV/GV" value="${esc(S.q)}"></label>
+  <select id="roleF" aria-label="Lọc vai trò"><option value="">Tất cả vai trò</option>${ROLES.map(r=>`<option ${S.roleF===r?"selected":""}>${r}</option>`).join("")}</select>
+  <span class="muted">${list.length} tài khoản</span></div>
+  <div class="scroll"><table><thead><tr><th>Người dùng</th><th>Đơn vị / Khoa</th><th>Vai trò</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th></tr></thead><tbody>
+  ${list.map(a=>`<tr><td><div class="person"><div class="av">${initials(a.name)}</div><div class="meta"><b>${esc(a.name)}</b><br><span class="mono muted">${esc(a.email)}</span></div></div></td><td>${esc(a.khoa)}</td>
+   <td>${a.roles.map(r=>`<span class="chip ${RCLS[r]}">${esc(r)}</span>`).join("")}</td>
+   <td>${a.active?'<span class="pill ok">Hoạt động</span>':'<span class="pill bad">Đã khóa</span>'}</td>
+   <td style="white-space:nowrap;text-align:right"><button class="btn sm" type="button" data-role="${a.id}">Phân quyền</button> <button class="btn sm ${a.active?"danger":""}" type="button" data-lock="${a.id}">${a.active?"Khóa":"Mở khóa"}</button></td></tr>`).join("")||`<tr><td colspan="5" class="muted">Không có tài khoản khớp bộ lọc.</td></tr>`}
+  </tbody></table></div></div>`+
+ rule(`<b>BR4:</b> Không có nút xóa, tài khoản đã có lịch sử mượn/trả chỉ được khóa. <b>BR5:</b> Mọi thay đổi được ghi vào nhật ký hoạt động trên Dashboard.`);
+}
+function bindAccounts(){
+ $("#q").oninput=e=>{S.q=e.target.value;render(true)};
+ $("#roleF").onchange=e=>{S.roleF=e.target.value;render()};
+ $("#btnSync").onclick=()=>{
+  if(!S.accounts.find(a=>a.id==="2474802010445")){
+   S.accounts.push({id:"2474802010445",name:"Nguyễn Quang Vũ",email:"vu.2474802010445@vanlanguni.vn",khoa:"Khoa CNTT",roles:["Sinh viên"],active:true},{id:"GV0533",name:"Võ Thị Hạnh",email:"hanh.vt@vlu.edu.vn",khoa:"Khoa Ngôn ngữ Anh",roles:["Giảng viên"],active:true});
+   addLog("Tài khoản","Đồng bộ tài khoản trường: thêm 2 tài khoản mới");toast("Đã đồng bộ: thêm 2 tài khoản mới, vai trò gán mặc định theo loại email.");
+  } else toast("Đã đồng bộ: không có tài khoản mới.");
+  render();
+ };
+ document.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{
+  const a=S.accounts.find(x=>x.id===b.dataset.role);
+  dialog("Phân quyền: "+a.name,`<p class="muted" style="margin:0">Chọn ít nhất một vai trò.</p>`+ROLES.map((r,i)=>`<label class="check"><input type="checkbox" id="rl${i}" value="${r}" ${a.roles.includes(r)?"checked":""}> ${r}</label>`).join(""),"Lưu phân quyền",o=>{
+   const sel=[...o.querySelectorAll("input:checked")].map(i=>i.value);
+   if(!sel.length)return "BR3: Mỗi tài khoản phải có ít nhất 1 vai trò.";
+   a.roles=sel;addLog("Phân quyền",`Cập nhật vai trò của ${a.name}: ${sel.join(", ")}`);render();toast("Đã lưu phân quyền và gửi thông báo cho "+a.name+".");
+  });
+ });
+ document.querySelectorAll("[data-lock]").forEach(b=>b.onclick=()=>{
+  const a=S.accounts.find(x=>x.id===b.dataset.lock);
+  dialog(a.active?"Khóa tài khoản?":"Mở khóa tài khoản?",`<p style="margin:0">${a.active?`${esc(a.name)} sẽ không đăng nhập được nữa. Lịch sử mượn/trả vẫn được giữ.`:`${esc(a.name)} sẽ đăng nhập lại được.`}</p>`,a.active?"Khóa tài khoản":"Mở khóa",()=>{
+   a.active=!a.active;addLog("Tài khoản",`${a.active?"Mở khóa":"Khóa"} tài khoản ${a.name}`);render();toast(a.active?"Đã mở khóa tài khoản.":"Đã khóa tài khoản.");
+  },a.active);
+ });
+}
+
+/* ---------- UA2 ---------- */
+function vCatalog(){
+ const rooms=S.tab==="rooms";
+ return head("UA2 · Quản lý danh mục phòng & thiết bị","Danh mục phòng & thiết bị","Cập nhật đầu học kỳ bằng file Excel, hoặc thêm, sửa từng mục.",
+  `<button class="btn primary" id="btnAdd" type="button">${ic("plus")}Thêm ${rooms?"phòng":"thiết bị"}</button>`)+
+ `<div class="stack"><div class="card"><div class="importbox"><div class="ic">${ic("upload")}</div><div class="txt"><b>Import danh mục từ file Excel</b><div class="muted" style="font-size:12.5px">Dùng đúng file mẫu. Dòng lỗi được báo cụ thể, dòng hợp lệ vẫn được nhập.</div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="btnTpl" type="button">${ic("download")}Tải file mẫu</button><label class="btn primary" for="fileIn">${ic("upload")}Chọn file và import</label><input id="fileIn" type="file" accept=".xlsx,.xls,.csv" hidden></div></div>
+  <div id="importRes"></div></div>
+  <div class="card"><div class="tabs" role="tablist"><button class="tab" role="tab" type="button" aria-selected="${rooms}" data-tab="rooms">Phòng (${S.rooms.length})</button><button class="tab" role="tab" type="button" aria-selected="${!rooms}" data-tab="devices">Thiết bị (${S.devices.length})</button></div>
+  <div class="scroll"><table><thead><tr>${rooms?"<th>Mã phòng</th><th>Loại phòng</th><th>Sức chứa</th>":"<th>Mã thiết bị</th><th>Tên thiết bị</th><th>Vị trí</th><th>Khả dụng</th>"}<th>Trạng thái</th><th style="text-align:right">Thao tác</th></tr></thead><tbody>
+  ${(rooms?S.rooms:S.devices).map((x,i)=>`<tr>${rooms?`<td class="mono"><b>${x.code}</b></td><td><span class="chip ${x.type==="Hội trường"?"c2":x.type==="Phòng họp"?"c3":""}">${x.type}</span></td><td>${x.cap} chỗ</td>`:`<td class="mono"><b>${x.code}</b></td><td>${esc(x.name)}</td><td>${esc(x.place)}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="width:70px;height:6px;border-radius:9px;background:var(--panel2);overflow:hidden"><div style="height:100%;width:${x.avail/x.qty*100}%;background:var(--c3)"></div></div><span class="mono">${x.avail}/${x.qty}</span></div></td>`}
+   <td>${pill(x.status)}</td><td style="white-space:nowrap;text-align:right"><button class="btn sm" type="button" data-st="${i}">Đổi trạng thái</button></td></tr>`).join("")}
+  </tbody></table></div></div></div>`+
+ rule(`<b>BR4:</b> Phòng/thiết bị đang có lịch đặt hoặc đang cho mượn không xóa được, chỉ chuyển sang "Ngưng sử dụng".`);
+}
+function showImport(name){
+ S.rooms.push({code:"J.05.02",type:"Phòng học",cap:50,status:"Hoạt động"},{code:"F.01.05",type:"Phòng họp",cap:16,status:"Hoạt động"});
+ addLog("Danh mục",`Import file ${name}: 46 dòng thành công, 3 dòng lỗi`);render();
+ $("#importRes").innerHTML=`<div class="result"><div><span class="pill ok">46 dòng nhập thành công</span> <span class="pill bad">3 dòng lỗi</span> <span class="muted">· ${esc(name)}</span></div>
+ <div class="scroll"><table style="min-width:480px"><thead><tr><th>Dòng</th><th>Mã</th><th>Lỗi</th></tr></thead><tbody>
+ <tr><td class="mono">12</td><td class="mono">J.04.12</td><td>Mã phòng đã tồn tại</td></tr><tr><td class="mono">27</td><td class="mono">F.03.??</td><td>Mã phòng sai định dạng tòa.tầng.số</td></tr><tr><td class="mono">41</td><td class="mono">A.06.02</td><td>Thiếu sức chứa</td></tr></tbody></table></div>
+ <div><button class="btn sm" id="btnErr" type="button">${ic("download")}Tải file lỗi để sửa</button></div></div>`;
+ $("#btnErr").onclick=()=>toast("Bản chính thức sẽ tải về file chỉ gồm 3 dòng lỗi để sửa và import lại.");
+}
+function bindCatalog(){
+ document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;render()});
+ $("#btnTpl").onclick=()=>toast("Bản chính thức sẽ tải về file mẫu danh_muc_mau.xlsx.");
+ $("#fileIn").onchange=e=>{const f=e.target.files[0];if(f)showImport(f.name)};
+ $("#btnAdd").onclick=()=>{
+  const rooms=S.tab==="rooms";
+  dialog(rooms?"Thêm phòng":"Thêm thiết bị",rooms?
+   `<div class="field"><label for="nCode">Mã phòng (tòa.tầng.số)</label><input id="nCode" placeholder="VD: J.06.04"></div><div class="field"><label for="nType">Loại phòng</label><select id="nType"><option>Phòng học</option><option>Hội trường</option><option>Phòng họp</option></select></div><div class="field"><label for="nCap">Sức chứa</label><input id="nCap" type="number" min="1" placeholder="VD: 60"></div>`:
+   `<div class="field"><label for="nCode">Mã thiết bị</label><input id="nCode" placeholder="VD: TB-OD-005"></div><div class="field"><label for="nName">Tên thiết bị</label><input id="nName" placeholder="VD: Ổ điện 4 lỗ"></div><div class="field"><label for="nCap">Số lượng</label><input id="nCap" type="number" min="1" placeholder="VD: 10"></div>`,
+   "Lưu",o=>{
+    const code=o.querySelector("#nCode").value.trim(),n=+o.querySelector("#nCap").value;
+    if(!code)return "Nhập mã.";
+    if(rooms&&!/^[A-Z]\.\d{2}\.\d{2}$/.test(code))return "BR1: Mã phòng phải có dạng tòa.tầng.số, VD J.06.04.";
+    if((rooms?S.rooms:S.devices).some(x=>x.code===code))return "Mã đã tồn tại.";
+    if(!(n>0))return rooms?"Sức chứa phải là số dương.":"Số lượng phải là số dương.";
+    if(rooms)S.rooms.push({code,type:o.querySelector("#nType").value,cap:n,status:"Hoạt động"});
+    else S.devices.push({code,name:o.querySelector("#nName").value.trim()||"Thiết bị mới",place:"Kho CSVC tòa F",qty:n,avail:n,status:"Hoạt động"});
+    addLog("Danh mục",`Thêm ${rooms?"phòng":"thiết bị"} ${code}`);render();toast("Đã thêm "+code+".");
+   });
+ };
+ document.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{
+  const x=(S.tab==="rooms"?S.rooms:S.devices)[+b.dataset.st];
+  dialog("Đổi trạng thái "+x.code,["Hoạt động","Đang bảo trì","Ngưng sử dụng"].map((s,i)=>`<label class="check"><input type="radio" name="st" id="st${i}" value="${s}" ${x.status===s?"checked":""}> ${s}</label>`).join(""),"Xác nhận",o=>{
+   x.status=o.querySelector("input:checked").value;addLog("Danh mục",`Chuyển ${x.code} sang "${x.status}"`);render();toast(`${x.code}: ${x.status}.`);
+  });
+ });
+}
+
+/* ---------- UA3 ---------- */
+function vAssign(){
+ const mgr=S.accounts.filter(a=>a.roles.includes("Người quản lý phòng")&&a.active);
+ const opt=(sel,allowEmpty)=>(allowEmpty?`<option value="">Chưa gán</option>`:"")+mgr.map(m=>`<option value="${m.id}" ${sel===m.id?"selected":""}>${esc(m.name)} · ${esc(m.khoa)}</option>`).join("");
+ const types=[["Phòng học","Phòng Đào tạo","var(--accent-soft)","var(--accent)"],["Hội trường","TT Hỗ trợ Sinh viên","var(--c2-soft)","var(--c2)"],["Phòng họp","Phòng CSVC","var(--c3-soft)","var(--c3)"]];
+ return head("UA3 · Phân công người quản lý theo loại phòng","Phân công quản lý phòng","Yêu cầu mượn phòng được hệ thống tự chuyển đến người duyệt theo bảng này. Người dự phòng nhận yêu cầu khi người chính vắng.",
+  `<button class="btn primary" id="btnSaveA" type="button">${ic("save")}Lưu phân công</button>`)+
+ `<div class="cards3">${types.map(([t,unit,bg,fg],i)=>{const c=S.rooms.filter(r=>r.type===t).length;const m=S.accounts.find(a=>a.id===S.assign[t].main);return `<div class="card mgr"><div class="top2"><div class="ic" style="background:${bg};color:${fg}">${ic("home")}</div><div><b style="font-size:15px">${t}</b><div class="muted" style="font-size:12.5px">${unit} · ${c} phòng</div></div></div>
+  <div class="person" style="background:var(--panel2);padding:10px;border-radius:10px"><div class="av">${m?initials(m.name):"?"}</div><div class="meta"><span class="muted" style="font-size:11.5px">Đang duyệt</span><br><b>${m?esc(m.name):"Chưa gán"}</b></div></div>
+  <div class="field"><label for="m${i}">Người duyệt chính</label><select id="m${i}" data-t="${t}" data-k="main">${opt(S.assign[t].main,false)}</select></div>
+  <div class="field"><label for="b${i}">Người duyệt dự phòng</label><select id="b${i}" data-t="${t}" data-k="backup">${opt(S.assign[t].backup,true)}</select><span class="hint">Nhận yêu cầu khi người chính vắng, tránh đơn bị kẹt.</span></div></div>`}).join("")}</div>`+
+ rule(`<b>BR2:</b> Chỉ tài khoản có vai trò "Người quản lý phòng" mới xuất hiện trong danh sách. <b>BR4:</b> Đổi người duyệt chính thì các yêu cầu đang chờ tự chuyển sang người mới.`);
+}
+function bindAssign(){
+ $("#btnSaveA").onclick=()=>{
+  const sel=[...document.querySelectorAll("select[data-t]")];
+  for(const s of sel){if(s.dataset.k==="backup"&&s.value&&s.value===document.querySelector(`select[data-t="${s.dataset.t}"][data-k="main"]`).value){toast(`${s.dataset.t}: người dự phòng phải khác người duyệt chính.`);return}}
+  const changed=[];sel.forEach(s=>{if(S.assign[s.dataset.t][s.dataset.k]!==s.value){S.assign[s.dataset.t][s.dataset.k]=s.value;changed.push(s.dataset.t)}});
+  if(!changed.length){toast("Chưa có thay đổi nào.");return}
+  addLog("Phân công",`Cập nhật người duyệt: ${[...new Set(changed)].join(", ")}`);render();toast("Đã lưu phân công và gửi thông báo cho người được gán.");
+ };
+}
+
+/* ---------- UA4 ---------- */
+const RULES=[["maxDev","Số thiết bị tối đa mỗi người","thiết bị","Số thiết bị một người được mượn cùng lúc","box"],["loanHours","Thời hạn mượn thiết bị","giờ","Quá hạn thì hệ thống nhắc và ghi nhận trả trễ","clock"],["remindMin","Nhắc trước giờ kết thúc","phút","Gửi thông báo trước khi hết giờ sử dụng phòng","clock"],["extendMin","Thời gian gia hạn tối đa","phút","Mỗi lần gia hạn tự động khi phòng còn trống","home"]];
+function vRules(){
+ return head("UA4 · Cấu hình quy định mượn","Cấu hình quy định","Hệ thống dùng các con số này để tự kiểm soát việc mượn, nhắc giờ và gia hạn.")+
+ `<form class="card" id="ruleForm" novalidate><div class="cardh"><h3>Quy định đang áp dụng</h3><span class="muted">Cập nhật lần cuối 01/09/2026</span></div><div class="form">${RULES.map(([k,l,u,h])=>`<div class="field"><label for="r_${k}">${l}</label><div class="unit"><input id="r_${k}" type="number" min="1" value="${S.rules[k]}"><span class="muted">${u}</span></div><span class="hint">${h}</span><span class="err" id="e_${k}"></span></div>`).join("")}</div>
+ <div class="actions"><button class="btn" type="reset">Hoàn tác</button><button class="btn primary" type="submit">${ic("save")}Lưu cấu hình</button></div></form>`+
+ rule(`<b>BR1:</b> Quy định mới chỉ áp dụng cho yêu cầu tạo sau thời điểm lưu. <b>BR3:</b> Giá trị phải là số dương. Con số cụ thể nhóm chốt với nhà trường.`);
+}
+function bindRules(){
+ $("#ruleForm").onsubmit=e=>{
+  e.preventDefault();let ok=true;const v={};
+  RULES.forEach(([k])=>{const n=+$("#r_"+k).value;const er=$("#e_"+k);if(!(n>0)||!Number.isInteger(n)){er.textContent="Nhập số nguyên lớn hơn 0.";ok=false}else{er.textContent="";v[k]=n}});
+  if(!ok)return;
+  const diff=RULES.filter(([k])=>v[k]!==S.rules[k]);
+  if(!diff.length){toast("Chưa có thay đổi nào.");return}
+  dialog("Áp dụng quy định mới?",`<p style="margin:0">Thay đổi: ${diff.map(([k,l,u])=>`${l} ${S.rules[k]} → <b>${v[k]}</b> ${u}`).join("; ")}.</p><p class="muted" style="margin:0">Các yêu cầu đã tạo trước đó giữ quy định cũ.</p>`,"Áp dụng",()=>{
+   Object.assign(S.rules,v);addLog("Cấu hình",diff.map(([k,l])=>`${l}: ${v[k]}`).join("; "));render();toast("Đã lưu cấu hình.");
+  });
+ };
+}
+
+/* ---------- router ---------- */
+const VIEWS={
+ "bao-cao":["UA5","Dashboard","chart",vDash,bindDash],
+ "tai-khoan":["UA1","Tài khoản & phân quyền","users",vAccounts,bindAccounts],
+ "danh-muc":["UA2","Danh mục phòng & thiết bị","grid",vCatalog,bindCatalog],
+ "phan-cong":["UA3","Phân công quản lý phòng","ucheck",vAssign,bindAssign],
+ "cau-hinh":["UA4","Cấu hình quy định","sliders",vRules,bindRules]
+};
+$("#nav").innerHTML=Object.entries(VIEWS).map(([k,[ua,l,i]])=>`<a href="#${k}" data-v="${k}">${ic(i)}<span>${l}</span><span class="ua">${ua}</span></a>`).join("");
+let cur="bao-cao",logged=true;
+function render(keepFocus){
+ $("#loginView").hidden=logged;$("#appView").hidden=!logged;
+ if(!logged)return;
+ const pos=keepFocus&&document.activeElement?.id==="q"?document.activeElement.selectionStart:null;
+ $("#main").innerHTML=VIEWS[cur][3]();VIEWS[cur][4]();
+ $("#crumb").textContent=VIEWS[cur][1];
+ document.querySelectorAll("#nav a").forEach(a=>{if(a.dataset.v===cur)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+ if(pos!==null){const q=$("#q");q.focus();q.setSelectionRange(pos,pos)}
+}
+function route(){const h=location.hash.slice(1);if(h==="dang-nhap"){logged=false}else if(VIEWS[h]){cur=h;logged=true}render();window.scrollTo(0,0)}
+window.addEventListener("hashchange",route);
+$("#gq").addEventListener("keydown",e=>{if(e.key==="Enter"){S.q=e.target.value;cur="tai-khoan";e.target.value="";render()}});
+$("#btnBell").onclick=()=>toast("4 việc cần chú ý: 1 sự cố phòng đang có lớp, 3 yêu cầu chờ quá 24 giờ. Xem ở Dashboard.");
+$("#btnLogout").onclick=()=>{logged=false;render()};
+$("#btnLogin").onclick=()=>{logged=true;cur="bao-cao";addLog("Tài khoản","Đăng nhập trang quản trị");render();toast("Đăng nhập thành công với quyền Admin.")};
+route();
+})();
+</script>
+</body>
+</html>
